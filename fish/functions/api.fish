@@ -40,6 +40,8 @@ function api --description 'httpie wrapper: api <METHOD> <path|url> [httpie args
         switch $API_AUTH_TYPE
             case basic
                 http $extra --auth "$API_USERNAME:$API_PASSWORD" $method $url $subbed_rest
+            case apikey
+                http $extra $method $url "$API_KEY_HEADER:$API_KEY" $subbed_rest
             case client_credentials
                 http $extra $method $url "Authorization:Bearer $API_ACCESS_TOKEN" $subbed_rest
         end
@@ -47,6 +49,8 @@ function api --description 'httpie wrapper: api <METHOD> <path|url> [httpie args
         switch $API_AUTH_TYPE
             case basic
                 __api_subst_stream | http $extra --auth "$API_USERNAME:$API_PASSWORD" $method $url $subbed_rest
+            case apikey
+                __api_subst_stream | http $extra $method $url "$API_KEY_HEADER:$API_KEY" $subbed_rest
             case client_credentials
                 __api_subst_stream | http $extra $method $url "Authorization:Bearer $API_ACCESS_TOKEN" $subbed_rest
         end

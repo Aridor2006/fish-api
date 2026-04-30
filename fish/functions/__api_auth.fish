@@ -7,6 +7,16 @@ function __api_auth --description 'ensure we have valid auth state for the curre
             end
             return 0
 
+        case apikey
+            if not set -q API_KEY
+                echo "apikey: API_KEY not set in env config" >&2
+                return 1
+            end
+            if not set -q API_KEY_HEADER
+                set -gx API_KEY_HEADER X-API-Key
+            end
+            return 0
+
         case client_credentials
             if set -q API_ACCESS_TOKEN; and set -q API_ACCESS_TOKEN_EXPIRES_AT
                 if test (date +%s) -lt $API_ACCESS_TOKEN_EXPIRES_AT
@@ -59,7 +69,7 @@ function __api_auth --description 'ensure we have valid auth state for the curre
             return 0
 
         case '*'
-            echo "unknown API_AUTH_TYPE: '$API_AUTH_TYPE' (use 'basic' or 'client_credentials')" >&2
+            echo "unknown API_AUTH_TYPE: '$API_AUTH_TYPE' (use 'basic', 'apikey', or 'client_credentials')" >&2
             return 1
     end
 end

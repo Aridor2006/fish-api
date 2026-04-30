@@ -4,7 +4,7 @@
 
 set -gx API_BASE_URL "https://api.example.com"
 
-# One of: basic | client_credentials
+# One of: basic | apikey | client_credentials
 set -gx API_AUTH_TYPE "client_credentials"
 
 # ---- client_credentials ----
@@ -19,6 +19,12 @@ set -gx API_CLIENT_SECRET (pass show api/example/client-secret)
 # ---- basic ----
 # set -gx API_USERNAME "me"
 # set -gx API_PASSWORD (pass show api/example/password)
+
+# ---- apikey ----
+# set -gx API_KEY (pass show api/example/api-key)
+# Header name (default: X-API-Key). Examples: Authorization, Api-Key, X-Api-Token.
+# If your API expects a prefix like "Bearer xyz" or "ApiKey xyz", include it in API_KEY.
+# set -gx API_KEY_HEADER "X-API-Key"
 
 # Optional: extra httpie args applied to every call (array).
 # set -gx API_EXTRA_ARGS --verify=no
