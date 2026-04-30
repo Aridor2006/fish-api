@@ -2,6 +2,8 @@ function api --description 'httpie wrapper: api <METHOD> <path|url> [httpie args
     if test (count $argv) -lt 2
         echo "usage: api <METHOD> <path|url> [httpie args...]" >&2
         echo "  path starting with http(s):// is used as-is; otherwise API_BASE_URL is prepended" >&2
+        echo "  templates {{\$timestamp}} and {{\$guid}}/{{\$uuid}} are substituted in url, args, and stdin" >&2
+        echo "  for templated bodies, redirect a file: api-post /endpoint < body.json" >&2
         return 2
     end
 
@@ -24,14 +26,29 @@ function api --description 'httpie wrapper: api <METHOD> <path|url> [httpie args
         end
         set url $API_BASE_URL$target
     end
+    set url (__api_subst -- $url)
+
+    set -l subbed_rest
+    for a in $rest
+        set -a subbed_rest (__api_subst -- $a)
+    end
 
     set -l extra
     set -q API_EXTRA_ARGS; and set extra $API_EXTRA_ARGS
 
-    switch $API_AUTH_TYPE
-        case basic
-            http $extra --auth "$API_USERNAME:$API_PASSWORD" $method $url $rest
-        case client_credentials
-            http $extra $method $url "Authorization:Bearer $API_ACCESS_TOKEN" $rest
+    if isatty stdin
+        switch $API_AUTH_TYPE
+            case basic
+                http $extra --auth "$API_USERNAME:$API_PASSWORD" $method $url $subbed_rest
+            case client_credentials
+                http $extra $method $url "Authorization:Bearer $API_ACCESS_TOKEN" $subbed_rest
+        end
+    else
+        switch $API_AUTH_TYPE
+            case basic
+                __api_subst_stream | http $extra --auth "$API_USERNAME:$API_PASSWORD" $method $url $subbed_rest
+            case client_credentials
+                __api_subst_stream | http $extra $method $url "Authorization:Bearer $API_ACCESS_TOKEN" $subbed_rest
+        end
     end
 end
