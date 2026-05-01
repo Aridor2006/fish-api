@@ -26,11 +26,11 @@ function api --description 'httpie wrapper: api <METHOD> <path|url> [httpie args
         end
         set url $API_BASE_URL$target
     end
-    set url (__api_subst -- $url)
+    set url (__api_subst $url)
 
     set -l subbed_rest
     for a in $rest
-        set -a subbed_rest (__api_subst -- $a)
+        set -a subbed_rest (__api_subst $a)
     end
 
     set -l extra
