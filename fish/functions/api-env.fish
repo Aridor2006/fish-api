@@ -26,7 +26,7 @@ function api-env --description 'switch or show the current API env'
         set -e $v
     end
 
-    set -U API_ENV $name
+    set -gx API_ENV $name
     __api_load; or return 1
     echo "switched to $name ($API_BASE_URL)"
 end
